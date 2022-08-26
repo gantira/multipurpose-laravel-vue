@@ -31,33 +31,39 @@ const editUserSchema = yup.object({
 
 })
 
-const createUser = (values, { resetForm }) => {
+const createUser = (values, { resetForm, setErrors }) => {
     axios.post('/api/users', values)
         .then((response) => {
             users.value.unshift(response.data)
             $('#userFormModal').modal('hide');
             resetForm();
-        });
+        })
+        .catch((error) => {
+            if (error.response.data.errors) {
+                setErrors(error.response.data.errors);
+            }
+        })
 }
 
-const updateUser = (values) => {
+const updateUser = (values, { setErrors }) => {
     axios.put('/api/users/' + formValues.value.id, values)
         .then((response) => {
             const index = users.value.findIndex(user => user.id === response.data.id);
             users.value[index] = response.data
             $('#userFormModal').modal('hide');
-        }).catch((error) => {
-            console.log(error);
-        }).finally(() => {
-            form.value.resetForm();
-        });
+        })
+        .catch((error) => {
+            if (error.response.data.errors) {
+                setErrors(error.response.data.errors)
+            }
+        })
 }
 
-const handleSubmit = (values) => {
+const handleSubmit = (values, actions) => {
     if (editing.value) {
-        updateUser(values)
+        updateUser(values, actions)
     } else {
-        createUser(values)
+        createUser(values, actions)
     }
 }
 
