@@ -3,7 +3,9 @@ import axios from "axios";
 import { ref, onMounted, reactive } from "vue";
 import { Form, Field } from "vee-validate";
 import * as yup from 'yup';
+import { userToastr } from "../../toastr";
 
+const toastr = userToastr();
 const users = ref([]);
 const editing = ref(false);
 const formValues = ref();
@@ -37,6 +39,7 @@ const createUser = (values, { resetForm, setErrors }) => {
             users.value.unshift(response.data)
             $('#userFormModal').modal('hide');
             resetForm();
+            toastr.success('User created successfully')
         })
         .catch((error) => {
             if (error.response.data.errors) {
@@ -51,6 +54,7 @@ const updateUser = (values, { setErrors }) => {
             const index = users.value.findIndex(user => user.id === response.data.id);
             users.value[index] = response.data
             $('#userFormModal').modal('hide');
+            toastr.success('User updated successfully')
         })
         .catch((error) => {
             if (error.response.data.errors) {
