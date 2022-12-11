@@ -103,6 +103,25 @@ const deleteUser = () => {
         })
 }
 
+const roles = ref([
+    {
+        name: 'ADMIN',
+        value: '1'
+    },
+    {
+        name: 'USER',
+        value: '2'
+    }
+]);
+
+const changeRole = (user, role) => {
+    axios.patch(`/api/users/${user.id}/change-role`, {
+        role: role,
+    }).then(() => {
+        toastr.success('User updated successfully!');
+    })
+}
+
 onMounted(() => {
     getUsers();
 });
@@ -151,7 +170,12 @@ onMounted(() => {
                                 <td>{{ user.name }}</td>
                                 <td>{{ user.email }}</td>
                                 <td>{{ formatDate(user.created_at) }}</td>
-                                <td>{{ user.role }}</td>
+                                <td>
+                                    <select class="form-control" @change="changeRole(user, $event.target.value)">
+                                        <option v-for="role in roles" :value="role.value"
+                                            :selected="user.role === role.name">{{ role.name }}</option>
+                                    </select>
+                                </td>
                                 <td>
                                     <a href="#" @click.prevent="editUser(user)">
                                         <i class="fa fa-edit"></i>
