@@ -3,9 +3,9 @@ import axios from "axios";
 import { ref, onMounted, reactive } from "vue";
 import { Form, Field } from "vee-validate";
 import * as yup from 'yup';
-import { userToastr } from "../../toastr";
+import { useToastr } from "../../toastr";
 
-const toastr = userToastr();
+const toastr = useToastr();
 const users = ref([]);
 const editing = ref(false);
 const formValues = ref();
