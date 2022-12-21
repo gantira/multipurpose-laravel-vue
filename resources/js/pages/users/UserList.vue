@@ -1,9 +1,10 @@
 <script setup>
 import axios from "axios";
-import { ref, onMounted, reactive } from "vue";
+import { ref, onMounted, reactive, resolveComponent, watch } from "vue";
 import { Form, Field } from "vee-validate";
 import * as yup from 'yup';
 import UserListItem from "./UserListItem.vue";
+import { debounce } from "lodash";
 
 const users = ref([]);
 const editing = ref(false);
@@ -74,6 +75,20 @@ const userDeleted = (userId) => {
     users.value = users.value.filter(user => user.id != userId);
 }
 
+const searchQuery = ref(null);
+
+const search = () => {
+    axios.get('/api/users/search', {
+        params: {
+            query: searchQuery.value
+        }
+    }).then(response => {
+        users.value = response.data
+    }).catch(error => {
+        console.log(error);
+    })
+}
+
 const addUser = () => {
     editing.value = false;
     $('#userFormModal').modal('show');
@@ -89,6 +104,10 @@ const editUser = (user) => {
         email: user.email,
     };
 }
+
+watch(searchQuery, debounce(() => {
+    search();
+}, 300))
 
 onMounted(() => {
     getUsers();
@@ -114,10 +133,15 @@ onMounted(() => {
 
     <div class="content">
         <div class="container-fluid">
-            <!-- Button trigger modal -->
-            <button @click="addUser" type="button" class="btn btn-primary mb-2">
-                Add New User
-            </button>
+            <div class="d-flex justify-content-between">
+                <!-- Button trigger modal -->
+                <button @click="addUser" type="button" class="btn btn-primary mb-2">
+                    Add New User
+                </button>
+                <div>
+                    <input type="text" v-model="searchQuery" class="form-control" placeholder="Search...">
+                </div>
+            </div>
 
             <div class="card">
                 <div class="card-body">
@@ -132,9 +156,14 @@ onMounted(() => {
                                 <th>Options</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody v-if="users.length">
                             <UserListItem v-for="(user, index) in users" :key="user.id" :user="user" :index="index"
-                                @user-deleted="userDeleted" @edit-user="editUser"/>
+                                @user-deleted="userDeleted" @edit-user="editUser" />
+                        </tbody>
+                        <tbody v-else>
+                            <tr>
+                                <td colspan="6" class="text-center">No results found...</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
