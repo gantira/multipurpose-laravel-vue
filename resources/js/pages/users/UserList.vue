@@ -5,16 +5,18 @@ import { Form, Field } from "vee-validate";
 import * as yup from 'yup';
 import UserListItem from "./UserListItem.vue";
 import { debounce } from "lodash";
+import { Bootstrap4Pagination } from 'laravel-vue-pagination';
 
-const users = ref([]);
+const users = ref({ 'data': [] });
 const editing = ref(false);
 const formValues = ref();
 const form = ref(null);
 
-const getUsers = () => {
-    axios.get("/api/users").then((response) => {
-        users.value = response.data;
-    });
+const getUsers = (page = 1) => {
+    axios.get(`/api/users?page=${page}`)
+        .then((response) => {
+            users.value = response.data;
+        });
 };
 
 const createUserSchema = yup.object({
@@ -156,8 +158,8 @@ onMounted(() => {
                                 <th>Options</th>
                             </tr>
                         </thead>
-                        <tbody v-if="users.length">
-                            <UserListItem v-for="(user, index) in users" :key="user.id" :user="user" :index="index"
+                        <tbody v-if="users.data.length">
+                            <UserListItem v-for="(user, index) in users.data" :key="user.id" :user="user" :index="index"
                                 @user-deleted="userDeleted" @edit-user="editUser" />
                         </tbody>
                         <tbody v-else>
@@ -168,6 +170,7 @@ onMounted(() => {
                     </table>
                 </div>
             </div>
+            <Bootstrap4Pagination :data="users" @pagination-change-page="getUsers" />
         </div>
     </div>
 
