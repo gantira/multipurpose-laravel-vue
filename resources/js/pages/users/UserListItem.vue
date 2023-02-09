@@ -6,7 +6,7 @@ import axios from "axios";
 
 const toastr = useToastr();
 
-defineProps({
+const props = defineProps({
     user: Object,
     index: Number
 });
@@ -49,10 +49,15 @@ const changeRole = (user, role) => {
         })
 }
 
+const toggleSelection = () => {
+    emit('toggleSelection', props.user)
+}
+
 </script>
 
 <template>
     <tr>
+        <td><input type="checkbox" @change="toggleSelection"></td>
         <td>{{ index + 1 }}</td>
         <td>{{ user.name }}</td>
         <td>{{ user.email }}</td>
