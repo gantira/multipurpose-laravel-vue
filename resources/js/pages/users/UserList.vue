@@ -128,9 +128,19 @@ const bulkDelete = () => {
         .then(response => {
             users.value.data = users.value.data.filter(user => !selectedUsers.value.includes(user.id));
             selectedUsers.value = [];
+            selectAll.value = false;
             toastr.success(response.data.message)
-
         })
+}
+
+const selectAll = ref(false);
+const selectedAllUsers = () => {
+    if (selectAll.value) {
+        selectedUsers.value = users.value.data.map(user => user.id)
+    } else {
+        selectedUsers.value = [];
+    }
+    console.log(selectedUsers.value)
 }
 
 watch(searchQuery, debounce(() => {
@@ -182,7 +192,7 @@ onMounted(() => {
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th><input type="checkbox"></th>
+                                <th><input type="checkbox" v-model="selectAll" @change="selectedAllUsers"></th>
                                 <th style="width: 10px">#</th>
                                 <th>Name</th>
                                 <th>Email</th>
@@ -193,7 +203,8 @@ onMounted(() => {
                         </thead>
                         <tbody v-if="users.data.length">
                             <UserListItem v-for="(user, index) in users.data" :key="user.id" :user="user" :index="index"
-                                @user-deleted="userDeleted" @edit-user="editUser" @toggle-selection="toggleSelection" />
+                                @user-deleted="userDeleted" @edit-user="editUser" @toggle-selection="toggleSelection"
+                                :select-all="selectAll" />
                         </tbody>
                         <tbody v-else>
                             <tr>
