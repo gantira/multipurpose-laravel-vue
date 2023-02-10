@@ -17,6 +17,8 @@ const getUsers = (page = 1) => {
     axios.get(`/api/users?page=${page}`)
         .then((response) => {
             users.value = response.data;
+            selectedUsers.value = [];
+            selectAll.value = false;
         });
 };
 
@@ -39,7 +41,7 @@ const editUserSchema = yup.object({
 const createUser = (values, { resetForm, setErrors }) => {
     axios.post('/api/users', values)
         .then((response) => {
-            users.value.unshift(response.data)
+            users.value.data.unshift(response.data)
             $('#userFormModal').modal('hide');
             resetForm();
             toastr.success('User created successfully')
@@ -54,8 +56,8 @@ const createUser = (values, { resetForm, setErrors }) => {
 const updateUser = (values, { setErrors }) => {
     axios.put('/api/users/' + formValues.value.id, values)
         .then((response) => {
-            const index = users.value.findIndex(user => user.id === response.data.id);
-            users.value[index] = response.data
+            const index = users.value.data.findIndex(user => user.id === response.data.id);
+            users.value.data[index] = response.data
             $('#userFormModal').modal('hide');
             toastr.success('User updated successfully')
         })
@@ -173,14 +175,19 @@ onMounted(() => {
         <div class="container-fluid">
             <div class="d-flex justify-content-between">
                 <!-- Button trigger modal -->
-                <div>
+                <div class="d-flex">
                     <button @click="addUser" type="button" class="btn btn-primary mb-2">
+                        <i class="fa fa-plus-circle mr-1"></i>
                         Add New User
                     </button>
-                    <button v-if="selectedUsers.length" @click="bulkDelete" type="button"
-                        class="btn ml-2 btn-danger mb-2">
-                        Delete Selected
-                    </button>
+                    <div v-if="selectedUsers.length">
+                        <button  @click="bulkDelete" type="button"
+                            class="btn ml-2 btn-danger mb-2">
+                            <i class="fa fa-trash mr-1"></i>
+                           Delete Selected
+                        </button>
+                        <span class="ml-1 ">Selected {{ selectedUsers.length }} users</span>
+                    </div>
                 </div>
                 <div>
                     <input type="text" v-model="searchQuery" class="form-control" placeholder="Search...">
