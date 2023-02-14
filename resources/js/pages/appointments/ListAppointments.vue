@@ -2,13 +2,19 @@
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
 
-
+const appointmentStatus = { 'scheduled': 1, 'confirmed': 2, 'cancelled': 3 }
 const appointments = ref([]);
-const getAppointments = () => {
-    axios.get('/api/appointments')
-    .then((response) => {
-        appointments.value = response.data;
+const getAppointments = (status) => {
+    const params = {};
+    if (status) {
+        params.status = status
+    }
+    axios.get('/api/appointments', {
+        params: params
     })
+        .then((response) => {
+            appointments.value = response.data;
+        })
 }
 
 onMounted(() => {
@@ -45,19 +51,28 @@ onMounted(() => {
                             </a>
                         </div>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-secondary">
+                            <button @click="getAppointments()" type="button"
+                                class="btn btn-secondary">
                                 <span class="mr-1">All</span>
                                 <span class="badge badge-pill badge-info">1</span>
                             </button>
 
-                            <button type="button" class="btn btn-default">
+                            <button @click="getAppointments(appointmentStatus.scheduled)" type="button"
+                                class="btn btn-default">
                                 <span class="mr-1">Scheduled</span>
                                 <span class="badge badge-pill badge-primary">0</span>
                             </button>
 
-                            <button type="button" class="btn btn-default">
-                                <span class="mr-1">Closed</span>
+                            <button @click="getAppointments(appointmentStatus.confirmed)" type="button"
+                                class="btn btn-default">
+                                <span class="mr-1">Confirmed</span>
                                 <span class="badge badge-pill badge-success">1</span>
+                            </button>
+
+                            <button @click="getAppointments(appointmentStatus.cancelled)" type="button"
+                                class="btn btn-default">
+                                <span class="mr-1">Cancelled</span>
+                                <span class="badge badge-pill badge-danger">1</span>
                             </button>
                         </div>
                     </div>
@@ -65,7 +80,7 @@ onMounted(() => {
                         <div class="card-body">
                             <table class="table table-bordered">
                                 <thead>
-                                    <tr> 
+                                    <tr>
                                         <th scope="col">#</th>
                                         <th scope="col">Client Name</th>
                                         <th scope="col">Date</th>
@@ -81,7 +96,9 @@ onMounted(() => {
                                         <td>{{ appointment.start_time }}</td>
                                         <td>{{ appointment.end_time }}</td>
                                         <td>
-                                            <span class="badge" :class="`badge-${appointment.status.color}`">{{ appointment.status.name }}</span>
+                                            <span class="badge" :class="`badge-${appointment.status.color}`">{{
+                                                appointment.status.name
+                                            }}</span>
                                         </td>
                                         <td>
                                             <a href="">
