@@ -1,10 +1,19 @@
 <script setup>
 import axios from 'axios';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 
-const appointmentStatus = { 'scheduled': 1, 'confirmed': 2, 'cancelled': 3 }
+// const appointmentStatus = { 'scheduled': 1, 'confirmed': 2, 'cancelled': 3 }
+const selectedStatus = ref()
+const appointmentStatus = ref([]);
+const getAppointmentStatus = () => {
+    axios.get('/api/appointment-status')
+        .then((response) => {
+            appointmentStatus.value = response.data;
+        })
+}
 const appointments = ref([]);
 const getAppointments = (status) => {
+    selectedStatus.value = status;
     const params = {};
     if (status) {
         params.status = status
@@ -17,8 +26,13 @@ const getAppointments = (status) => {
         })
 }
 
+const appointmentCount = computed(() => {
+    return appointmentStatus.value.map(status => status.count).reduce((acc, value) => acc + value, 0);
+})
+
 onMounted(() => {
     getAppointments()
+    getAppointmentStatus()
 })
 </script>
 
@@ -26,16 +40,16 @@ onMounted(() => {
     <div class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0">Appointments</h1>
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active">Appointments</li>
-                    </ol>
-                </div>
+            <div class="col-sm-6">
+                <h1 class="m-0">Appointments</h1>
             </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Appointments</li>
+                </ol>
+            </div>
+        </div>
         </div>
     </div>
 
@@ -51,29 +65,29 @@ onMounted(() => {
                             </a>
                         </div>
                         <div class="btn-group">
-                            <button @click="getAppointments()" type="button"
-                                class="btn btn-secondary">
+                            <button @click="getAppointments()" type="button" class="btn"
+                                :class="[typeof selectedStatus === 'undefined' ? 'btn-secondary' : 'btn-default']">
                                 <span class="mr-1">All</span>
-                                <span class="badge badge-pill badge-info">1</span>
+                                <span class="badge badge-pill badge-info">{{ appointmentCount }}</span>
                             </button>
 
-                            <button @click="getAppointments(appointmentStatus.scheduled)" type="button"
-                                class="btn btn-default">
-                                <span class="mr-1">Scheduled</span>
-                                <span class="badge badge-pill badge-primary">0</span>
+                            <button v-for="status in appointmentStatus" @click="getAppointments(status.value)" type="button"
+                                class="btn" :class="[selectedStatus === status.value ? 'btn-secondary' : 'btn-default']">
+                                <span class="mr-1">{{ status.name }}</span>
+                                <span class="badge badge-pill" :class="`badge-${status.color}`">{{ status.count }}</span>
                             </button>
 
-                            <button @click="getAppointments(appointmentStatus.confirmed)" type="button"
-                                class="btn btn-default">
-                                <span class="mr-1">Confirmed</span>
-                                <span class="badge badge-pill badge-success">1</span>
-                            </button>
+                            <!-- <button @click="getAppointments(appointmentStatus.confirmed)" type="button"
+                                                                class="btn btn-default">
+                                                                <span class="mr-1">Confirmed</span>
+                                                                <span class="badge badge-pill badge-success">1</span>
+                                                            </button>
 
-                            <button @click="getAppointments(appointmentStatus.cancelled)" type="button"
-                                class="btn btn-default">
-                                <span class="mr-1">Cancelled</span>
-                                <span class="badge badge-pill badge-danger">1</span>
-                            </button>
+                                                            <button @click="getAppointments(appointmentStatus.cancelled)" type="button"
+                                                                class="btn btn-default">
+                                                                <span class="mr-1">Cancelled</span>
+                                                                <span class="badge badge-pill badge-danger">1</span>
+                                                            </button> -->
                         </div>
                     </div>
                     <div class="card">
