@@ -53,17 +53,19 @@ class AppointmentController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'client_id' => 'required',
-            'title' => 'required',
-            'description' => 'required',
-            'start_time' => 'required',
-            'end_time' => 'required',
-        ],[],
-    [
-        'client_id' => 'client name'
-    ]
-);
+        $validated = $request->validate(
+            [
+                'client_id' => 'required',
+                'title' => 'required',
+                'description' => 'required',
+                'start_time' => 'required',
+                'end_time' => 'required',
+            ],
+            [],
+            [
+                'client_id' => 'client name'
+            ]
+        );
 
         Appointment::create([
             'title' => $validated['title'],
@@ -89,12 +91,12 @@ class AppointmentController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  int  $appointment
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Appointment $appointment)
     {
-        //
+        return $appointment;
     }
 
     /**
@@ -104,9 +106,25 @@ class AppointmentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Appointment $appointment)
     {
-        //
+        $validated = $request->validate(
+            [
+                'client_id' => 'required',
+                'title' => 'required',
+                'description' => 'required',
+                'start_time' => 'required',
+                'end_time' => 'required',
+            ],
+            [],
+            [
+                'client_id' => 'client name'
+            ]
+        );
+
+        $appointment->update($validated);
+
+        return response()->json(['success' => true]);
     }
 
     /**

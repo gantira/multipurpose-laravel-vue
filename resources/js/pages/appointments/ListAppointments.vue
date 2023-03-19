@@ -78,16 +78,16 @@ onMounted(() => {
                             </button>
 
                             <!-- <button @click="getAppointments(appointmentStatus.confirmed)" type="button"
-                                                                class="btn btn-default">
-                                                                <span class="mr-1">Confirmed</span>
-                                                                <span class="badge badge-pill badge-success">1</span>
-                                                            </button>
+                                                                            class="btn btn-default">
+                                                                            <span class="mr-1">Confirmed</span>
+                                                                            <span class="badge badge-pill badge-success">1</span>
+                                                                        </button>
 
-                                                            <button @click="getAppointments(appointmentStatus.cancelled)" type="button"
-                                                                class="btn btn-default">
-                                                                <span class="mr-1">Cancelled</span>
-                                                                <span class="badge badge-pill badge-danger">1</span>
-                                                            </button> -->
+                                                                        <button @click="getAppointments(appointmentStatus.cancelled)" type="button"
+                                                                            class="btn btn-default">
+                                                                            <span class="mr-1">Cancelled</span>
+                                                                            <span class="badge badge-pill badge-danger">1</span>
+                                                                        </button> -->
                         </div>
                     </div>
                     <div class="card">
@@ -115,9 +115,9 @@ onMounted(() => {
                                             }}</span>
                                         </td>
                                         <td>
-                                            <a href="">
+                                            <router-link :to="`/admin/appointments/${appointment.id}/edit`">
                                                 <i class="fa fa-edit mr-2"></i>
-                                            </a>
+                                            </router-link>
 
                                             <a href="">
                                                 <i class="fa fa-trash text-danger"></i>
