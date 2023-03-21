@@ -1,6 +1,7 @@
 <script setup>
 import axios from 'axios';
 import { onMounted, ref, computed } from 'vue';
+import Swal from 'sweetalert2'
 
 // const appointmentStatus = { 'scheduled': 1, 'confirmed': 2, 'cancelled': 3 }
 const selectedStatus = ref()
@@ -30,6 +31,31 @@ const appointmentCount = computed(() => {
     return appointmentStatus.value.map(status => status.count).reduce((acc, value) => acc + value, 0);
 })
 
+const deleteAppointment = (id) => {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            axios.delete(`/api/appointments/${id}`)
+                .then((response) => {
+                    appointments.value.data = appointments.value.data.filter(appointment => appointment.id != id)
+                    Swal.fire(
+                        'Deleted!',
+                        'Your file has been deleted.',
+                        'success'
+                    )
+                })
+
+        }
+    })
+}
+
 onMounted(() => {
     getAppointments()
     getAppointmentStatus()
@@ -40,16 +66,16 @@ onMounted(() => {
     <div class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0">Appointments</h1>
+                <div class="col-sm-6">
+                    <h1 class="m-0">Appointments</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active">Appointments</li>
+                    </ol>
+                </div>
             </div>
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item active">Appointments</li>
-                </ol>
-            </div>
-        </div>
         </div>
     </div>
 
@@ -78,16 +104,16 @@ onMounted(() => {
                             </button>
 
                             <!-- <button @click="getAppointments(appointmentStatus.confirmed)" type="button"
-                                                                            class="btn btn-default">
-                                                                            <span class="mr-1">Confirmed</span>
-                                                                            <span class="badge badge-pill badge-success">1</span>
-                                                                        </button>
+                                                                                            class="btn btn-default">
+                                                                                            <span class="mr-1">Confirmed</span>
+                                                                                            <span class="badge badge-pill badge-success">1</span>
+                                                                                        </button>
 
-                                                                        <button @click="getAppointments(appointmentStatus.cancelled)" type="button"
-                                                                            class="btn btn-default">
-                                                                            <span class="mr-1">Cancelled</span>
-                                                                            <span class="badge badge-pill badge-danger">1</span>
-                                                                        </button> -->
+                                                                                        <button @click="getAppointments(appointmentStatus.cancelled)" type="button"
+                                                                                            class="btn btn-default">
+                                                                                            <span class="mr-1">Cancelled</span>
+                                                                                            <span class="badge badge-pill badge-danger">1</span>
+                                                                                        </button> -->
                         </div>
                     </div>
                     <div class="card">
@@ -103,7 +129,7 @@ onMounted(() => {
                                         <th scope="col">Options</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody v-if="appointments.total">
                                     <tr v-for="(appointment, index) in appointments.data" :key="appointment.id">
                                         <td>{{ index + 1 }}</td>
                                         <td>{{ appointment.client.first_name }} {{ appointment.client.last_name }}</td>
@@ -119,10 +145,15 @@ onMounted(() => {
                                                 <i class="fa fa-edit mr-2"></i>
                                             </router-link>
 
-                                            <a href="">
+                                            <a href="#" @click.prevent="deleteAppointment(appointment.id)">
                                                 <i class="fa fa-trash text-danger"></i>
                                             </a>
                                         </td>
+                                    </tr>
+                                </tbody>
+                                <tbody v-else>
+                                    <tr>
+                                        <td colspan="6" class="text-center">No results found...</td>
                                     </tr>
                                 </tbody>
                             </table>

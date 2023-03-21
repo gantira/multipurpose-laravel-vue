@@ -133,8 +133,10 @@ class AppointmentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Appointment $appointment)
     {
-        //
+        $appointment->delete();
+
+        return response()->json(['success' => true]);
     }
 }
