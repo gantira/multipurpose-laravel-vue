@@ -25,7 +25,7 @@ const getUsersCount = () => {
             date_range: selectedDateRange.value
         }
     })
-        .then((response) => {
+        .then((response) => { 
             totalUsersCount.value = response.data.totalUsersCount
         })
 }
