@@ -10,7 +10,7 @@ export const useAuthUserStore = defineStore('AuthUserStore', () => {
         avatar: '',
     })
 
-    const getAuthUser = () => {
+    const getAuthUser = async () => {
         axios.get('/api/profile')
             .then((response) => {
                 user.value = response.data
