@@ -8,6 +8,8 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Routes from './routes';
 import Login from './pages/auth/Login.vue';
 import App from './App.vue'
+import { useAuthUserStore } from './stores/AuthUserStore.js';
+import { useSettingStore } from './stores/SettingStore.js';
 
 const pinia = createPinia();
 const app = createApp(App);
@@ -17,15 +19,26 @@ const router = createRouter({
     history: createWebHistory(),
 })
 
+router.beforeEach((to, from) => {
+    const authUserStore = useAuthUserStore();
+    if (authUserStore.user.name === '' && to.name !== 'admin.login') {
+        authUserStore.getAuthUser();
+        const settingStore = useSettingStore();
+        settingStore.getSetting();
+    }
+})
+
 app.use(pinia)
 app.use(router);
 
 app.component('Login', Login);
 
-if (window.location.pathname === '/login') {
-    const currentApp = createApp({})
-    currentApp.component('Login', Login)
-    currentApp.mount('#login')
-} else {
-    app.mount('#app');
-}
+// if (window.location.pathname === '/login') {
+//     const currentApp = createApp({})
+//     currentApp.component('Login', Login)
+//     currentApp.mount('#login')
+// } else {
+//     app.mount('#app');
+// }
+
+app.mount('#app')
